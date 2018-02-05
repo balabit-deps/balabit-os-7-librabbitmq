@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@ --buildsystem=cmake
+
+override_dh_strip:
+	dh_strip --dbg-package=librabbitmq-dbg
+
+override_dh_installman:
+	set -e ; \
+	for doc in consume declare-queue delete-queue get publish; do \
+	  docbook-to-man tools/doc/amqp-$$doc.xml > amqp-$$doc.1; \
+	done
+	docbook-to-man tools/doc/librabbitmq-tools.xml > librabbitmq-tools.7
+	dh_installman
