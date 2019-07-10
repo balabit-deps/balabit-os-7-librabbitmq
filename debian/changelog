@@ -1,3 +1,11 @@
+librabbitmq (0.8.0-1ubuntu0.18.04.1) bionic; urgency=medium
+
+  * d/patches: Add fix-parameter-processing.patch to correct handling of
+    --server, --url, and other options by reorganizing the logic flow.
+    (LP: #1790657)
+
+ -- Bryce Harrington <bryce@canonical.com>  Tue, 09 Jul 2019 21:19:59 -0700
+
 librabbitmq (0.8.0-1build1) bionic; urgency=high
 
   * No change rebuild against openssl1.1.

@@ -1,0 +1,117 @@
+From 5dfe5d2f2680a4639090a9c239a2b0018d90c789 Mon Sep 17 00:00:00 2001
+From: Alan Antonuk <alan.antonuk@gmail.com>
+Date: Fri, 19 Aug 2016 23:22:44 -0700
+Subject: [PATCH] Tools: fix --url parameter processing issues.
+
+--url parameter should not be specified with the --server --port
+--username and --password parameters. Correct parameter processing
+routines to correctly enforce this.
+
+Fixes #364
+
+Author: Alan Antonuk <alan.antonuk@gmail.com>
+Origin: upstream, https://github.com/alanxz/rabbitmq-c/commit/5dfe5d2f2680a4639090a9c239a2b0018d90c789
+Bug: https://github.com/alanxz/rabbitmq-c/issues/364
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/librabbitmq/+bug/1790657
+Acked-By: Bryce Harrington <bryce@canonical.com>
+Applied-Upstream: 0.9.0, commit:5dfe5d2f2680a4639090a9c239a2b0018d90c789
+Last-Updated: 2019-06-27
+---
+ tools/common.c | 43 ++++++++++++++++++++-----------------------
+ 1 file changed, 20 insertions(+), 23 deletions(-)
+
+diff --git a/tools/common.c b/tools/common.c
+index c8b13e31..9c6b085f 100644
+--- a/tools/common.c
++++ b/tools/common.c
+@@ -247,9 +247,9 @@ static void init_connection_info(struct amqp_connection_info *ci)
+ 
+   if (amqp_server) {
+     char *colon;
+-    if (ci->host)
+-      die("both --server and --url options specify"
+-          " server host");
++    if (amqp_url) {
++      die("--server and --url options cannot be used at the same time");
++    }
+ 
+     /* parse the server string into a hostname and a port */
+     colon = strchr(amqp_server, ':');
+@@ -260,7 +260,7 @@ static void init_connection_info(struct amqp_connection_info *ci)
+       /* Deprecate specifying the port number with the
+          --server option, because it is not ipv6 friendly.
+          --url now allows connection options to be
+-         specificied concisely. */
++         specified concisely. */
+       fprintf(stderr, "Specifying the port number with"
+               " --server is deprecated\n");
+ 
+@@ -269,12 +269,9 @@ static void init_connection_info(struct amqp_connection_info *ci)
+       memcpy(ci->host, amqp_server, host_len);
+       ci->host[host_len] = 0;
+ 
+-      if (ci->port >= 0)
+-        die("both --server and --url options specify"
+-            " server port");
+-      if (amqp_port >= 0)
+-        die("both --server and --port options specify"
+-            " server port");
++      if (amqp_port >= 0) {
++        die("both --server and --port options specify server port");
++      }
+ 
+       ci->port = strtol(colon+1, &port_end, 10);
+       if (ci->port < 0
+@@ -288,39 +285,39 @@ static void init_connection_info(struct amqp_connection_info *ci)
+ #if WITH_SSL
+     if (amqp_ssl && !ci->ssl) {
+       die("the --ssl option specifies an SSL connection"
+-          " but the --server option does not");
++          " but the --url option does not");
+     }
+ #endif
+   }
+ 
+   if (amqp_port >= 0) {
+-    if (ci->port >= 0)
+-      die("both --port and --url options specify"
+-          " server port");
++    if (amqp_url) {
++      die("--port and --url options cannot be used at the same time");
++    }
+ 
+     ci->port = amqp_port;
+   }
+ 
+   if (amqp_username) {
+-    if (ci->user)
+-      die("both --username and --url options specify"
+-          " AMQP username");
++    if (amqp_url) {
++      die("--username and --url options cannot be used at the same time");
++    }
+ 
+     ci->user = amqp_username;
+   }
+ 
+   if (amqp_password) {
+-    if (ci->password)
+-      die("both --password and --url options specify"
+-          " AMQP password");
++    if (amqp_url) {
++      die("--password and --url options cannot be used at the same time");
++    }
+ 
+     ci->password = amqp_password;
+   }
+ 
+   if (amqp_vhost) {
+-    if (ci->vhost)
+-      die("both --vhost and --url options specify"
+-          " AMQP vhost");
++    if (amqp_url) {
++      die("--vhost and --url options cannot be used at the same time");
++    }
+ 
+     ci->vhost = amqp_vhost;
+   }
