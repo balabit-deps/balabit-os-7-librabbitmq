@@ -1,3 +1,12 @@
+librabbitmq (0.8.0-1ubuntu0.18.04.2) bionic-security; urgency=medium
+
+  * SECURITY UPDATE: Integer overflow
+    - debian/patches/CVE-2019-18609.patch: check frame_size is >= INT32_MAX
+      in librabbitmq/amqp_connection.c.
+    - CVE-2019-18609
+
+ -- Eduardo Barretto <eduardo.barretto@canonical.com>  Tue, 10 Dec 2019 11:09:54 -0300
+
 librabbitmq (0.8.0-1ubuntu0.18.04.1) bionic; urgency=medium
 
   * d/patches: Add fix-parameter-processing.patch to correct handling of

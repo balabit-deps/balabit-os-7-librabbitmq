@@ -1,3 +1,4 @@
 cmake_with_ssl.patch
 use_cmake_package.patch
 fix-parameter-processing.patch
+CVE-2019-18609.patch
